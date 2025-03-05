@@ -38,7 +38,7 @@ In the code chunk below, load in the packages necessary for your analysis. You s
 
 ```{r}
 #| label: setup
-# library(tidyverse)
+library(tidyverse)
 ```
 
 # Part 2: Data Context
@@ -89,7 +89,9 @@ We want to use snake_case for our variable names. Use the `janitor` package to c
 ```{r}
 #| label: clean-names
 library(janitor)
+```
 
+```{r}
 buoy2024_clean<- janitor::clean_names(buoy2024_row1)
 ```
 
@@ -99,7 +101,6 @@ We will have a bit of cleaning to do on the data, but we have an issue. The 99 a
 Write the data to a `csv` file called `buoy_update.csv`. Be sure to write it to your `data-raw` folder.  
 
 ```{r}
-#| eval: false
 #| label: write-data-part-1
 
 buoy_update.csv <- write_csv(buoy2024_clean, file = "data-raw/buoy_update.csv")
@@ -119,8 +120,8 @@ Remember that now we are reading back in a data file of type `csv`. Now when you
 #| label: load-data-again
 
 buoy_new <- read_csv("data-raw/buoy_update.csv",
-            na = c("999"),
-            col_types = list(col_character())
+            col_types = cols(.default = col_character()), 
+                 na = c("99", "999"))
 ```
 
 This is great! But we created another problem. Now all of our numeric values are being treated like characters and we don't want that. There are a couple of ways to fix this. We can write and reread in the data setting the column types to `double` or we can use the `readr` parsing functions. 
@@ -129,13 +130,18 @@ Here is the code you can use to fix the data without exporting and importing aga
 
 ```{r}
 #| label: parse-double
-buoy_final <- your_file_name |> 
+buoy_final <- buoy_new |> 
   mutate(across(.cols = everything(), ~parse_double(.x)))
 ```
 
 
 
 Now we have our clean, correctly classified, data ready for analysis as `buoy_final`. Go ahead and write that data as a `csv` file into your `data-clean` file. Once you've done that. Set the data cleaning code chunks to `eval: false` so that you do not rerun them again when you render the document. 
+
+```{r}
+#| eval: false
+buoy_final <- write_csv(buoy_final, "data-clean/buoy_final")
+```
 
 
 # Part 3: Recreate the Following Visualization
@@ -144,7 +150,8 @@ Now that are data is "analytic ready", go ahead and read in your clean data and 
 ```{r}
 #| label: monterey-air-temp-viz
 
-
+ggplot(buoy_final, aes(x = ___, y = ____, color = factor(___)) +
+         
 ```
 
 # Part 4: Find a Data Set
@@ -162,6 +169,11 @@ One fun source for data is [Tidy Tuesday](https://github.com/rfordatascience/tid
 
 >Insert your description and link to your source here. Identify 2-3 research questions you could try to answer with this data.  
 
+https://www.kaggle.com/datasets/brsdincer/all-natural-disasters-19002021-eosdis
+
+1. Does the country of origin affect the amount of fatalities/ damage costs?
+
+2. How does the type of disaster differ in the result of the area that it affected?
 
 
 
