@@ -1,3 +1,10 @@
+```{r}
+#| embed-resources: true
+#| code-tools: true
+#| echo: true
+```
+
+
 # Part 1: Setup
 
 ## GitHub Workflow
@@ -68,7 +75,9 @@ When you read in the data give it an appropriate name for what the data represen
 
 ```{r}
 #| label: load-data
-buoy2024 <- read_tsv("data-raw/buoy_2024.txt")
+buoy2024 <- read_table("data-raw/buoy_2024.txt")
+
+print(buoy2024)
 ```
 
 Notice that the data is all read in as a character value and the first row contains information that is not data, but additional information about the variables: this is called a "comment" in the data.  
@@ -78,8 +87,9 @@ In your data, you will notice the `#` in front of `yr` in the second row. That i
 
 ```{r}
 #| label: load-data-comment
-buoy2024_row1 <- read_tsv("data-raw/buoy_2024.txt",
+buoy2024_row1 <- read_table("data-raw/buoy_2024.txt",
                           comment = "#")
+print(buoy2024_row1)
 ```
 
 
@@ -92,7 +102,11 @@ library(janitor)
 ```
 
 ```{r}
-buoy2024_clean<- janitor::clean_names(buoy2024_row1)
+buoy2024_clean<- read_table("data-raw/buoy_2024.txt",
+                          comment = "#") %>%
+  clean_names()
+
+print(buoy2024_clean)
 ```
 
 ## Step 4: Write the Data Part 1
@@ -122,6 +136,8 @@ Remember that now we are reading back in a data file of type `csv`. Now when you
 buoy_new <- read_csv("data-raw/buoy_update.csv",
             col_types = cols(.default = col_character()), 
                  na = c("99", "999"))
+
+print(buoy_new)
 ```
 
 This is great! But we created another problem. Now all of our numeric values are being treated like characters and we don't want that. There are a couple of ways to fix this. We can write and reread in the data setting the column types to `double` or we can use the `readr` parsing functions. 
@@ -132,6 +148,8 @@ Here is the code you can use to fix the data without exporting and importing aga
 #| label: parse-double
 buoy_final <- buoy_new |> 
   mutate(across(.cols = everything(), ~parse_double(.x)))
+
+print(buoy_final)
 ```
 
 
@@ -150,9 +168,21 @@ Now that are data is "analytic ready", go ahead and read in your clean data and 
 ```{r}
 #| label: monterey-air-temp-viz
 
-ggplot(buoy_final, aes(x = ___, y = ____, color = factor(___)) +
-         
+ggplot(buoy_final, aes(x = mm, y = atmp, color = factor(mm))) +
+  geom_jitter(alpha = 0.5) +
+  geom_smooth(color = "black") +  
+  scale_color_viridis_d() +  
+  labs(
+    title = "Monterey Bay Canyon Air Temperature in 2024",
+    x = "Month in 2024",
+    y = "Air Temperature (Celsius)",
+    caption = "Source: NOAA National Data Buoy Center"
+  ) +
+  theme_minimal() +
+  theme(legend.position = "none")  
+
 ```
+
 
 # Part 4: Find a Data Set
 
@@ -168,6 +198,8 @@ One fun source for data is [Tidy Tuesday](https://github.com/rfordatascience/tid
 **For your found data write a brief description of the data and and provide its source.**
 
 >Insert your description and link to your source here. Identify 2-3 research questions you could try to answer with this data.  
+
+This data set is a collection of many natural disasters in various countries of the world. There are many variable that can be useful to what I think I can research, clean, and code so this data will be interesting to learn from.
 
 https://www.kaggle.com/datasets/brsdincer/all-natural-disasters-19002021-eosdis
 
